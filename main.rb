@@ -35,7 +35,7 @@ def load_objects
   @silver = Model.new('obj/silversurfer', 'obj/silversurfer.mtl')
   @silver_glow = Model.new('obj/silversurfer_glow', 'obj/silversurfer_glow.mtl')
   @explosion = Model.new('obj/explosion','obj/explosion.mtl')
-  sound.play 
+  # sound.play 
   puts "model loaded"
 end
 
@@ -74,8 +74,8 @@ def draw
    glPushMatrix
     glTranslate(@silver_surfer[0], 0.0, @silver_surfer[2])
     glRotatef(-45.0,0.0,1.0,0.0)
-    glScalef(@silver_surfer_size, @silver_surfer_size, @silver_surfer_size)  if @explosion_size < 158.0
-    glScalef(0.0, 0.0, 0.0) if @explosion_size >= 158.0
+    glScalef(@silver_surfer_size, @silver_surfer_size, @silver_surfer_size)  if @explosion_size <= 0.0
+    glScalef(0.0, 0.0, 0.0) if @explosion_size > 0.0
     @silver.draw
   glPopMatrix
 
@@ -88,13 +88,13 @@ def draw
     glPopMatrix
   end
   
-  if @sun_size < 0.0
+  if @sun_size <= 0.0
     glPushMatrix
       glTranslate(0.0, 0.0, 0.0)
       glScalef(@explosion_size, @explosion_size, @explosion_size) if @explosion_size < 290.0
       @explosion.draw
     glPopMatrix
-    @explosion_sound.play if @explosion_size < 6.0
+    # @explosion_sound.play if @explosion_size == 5.0
   end
 
   glPushMatrix
@@ -210,16 +210,18 @@ def idle
   @neptune_spin += ((164.79)  /@slow_factor)
   @pluto_spin += ((247) /@slow_factor)
   
-  if @arrives_sun == false
-    @silver_surfer[0] += 1
-    @silver_surfer[2] += 1
-  else
-    @sun_size -=0.2 if @sun_size > 0.0
-    @explosion_size += 1 if(@sun_size < 0.0 && @explosion_size < 290.0)
+  if @sun_size > @mercury_size*15.0 - 0.5
+    @silver_surfer[0] -= 1
+    @silver_surfer[2] -= 1
+    @silver_surfer_size += 0.1
   end
+  
+  @sun_size +=0.2 if @sun_size < @mercury_size*15.0 && @explosion_size <= 0.0
+  @explosion_size -= 1 if(@sun_size <= 0.0 && @explosion_size > 0.0)
 
-  @silver_surfer_size -= 0.1 if @silver_surfer_size > 0.0
-  @silver_surfer_glow_size += 0.3 if @explosion_size >= 158.0
+
+  
+  @silver_surfer_glow_size -= 0.3 if @explosion_size >= 158.0 && @silver_surfer_glow_size > 0.0
   @silver_surfer_glow[2] += 3 if @explosion_size >= 158.0
 
   @arrives_sun = true if @silver_surfer[0] == 0.0
@@ -299,13 +301,13 @@ end
 @neptune_spin = 0.0
 @uranus_spin = 0.0
 @pluto_spin = 0.0 
-@silver_surfer = [-200.0,0.0,-200.0]
-@silver_surfer_size = @mercury_size *15.0
-@silver_surfer_glow = [0.0,0.0,0.0]
-@silver_surfer_glow_size = 1.0
+@silver_surfer = [0.0,0.0,0.0]
+@silver_surfer_size = 0.0
+@silver_surfer_glow = [0.0,0.0,-200.0]
+@silver_surfer_glow_size = @mercury_size *15.0
 @arrives_sun = false
-@sun_size = @mercury_size *15.0
-@explosion_size = 1.0
+@sun_size = 0.0
+@explosion_size = 320.0
 @previous_time = 0
 @frame_count = 0
 
